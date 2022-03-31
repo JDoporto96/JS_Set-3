@@ -17,12 +17,14 @@ export default class NotesView {
                 
             </div>
             `;
-        const btnAddNote = this.root.querySelector(".add_note");
-        const btnDeleteNote = this.root.querySelector(".delete_note");
-        const inputTitle = this.root.querySelector(".note_title");
-        const inputBody = this.root.querySelector(".note_body");
+        this.preview =this.root.querySelector(".notes_preview");
+        this.note_title=this.root.querySelector(".note_title");
+        this.note_body=this.root.querySelector(".note_body");
+        this.notesListContainer = this.root.querySelector(".note_list");
 
         
+        const btnAddNote = this.root.querySelector(".add_note");
+        const btnDeleteNote = this.root.querySelector(".delete_note");
 
         btnAddNote.addEventListener("click", () =>{
             this.onNoteAdd();
@@ -36,10 +38,11 @@ export default class NotesView {
             }
         });
 
-        [inputTitle,inputBody].forEach(field =>{
+
+        [this.note_title,this.note_body].forEach(field =>{
             field.addEventListener("blur", () =>{
-                const updatedTitle= inputTitle.value.trim();
-                const updatedBody= inputBody.value.trim();
+                const updatedTitle= this.note_title.value.trim();
+                const updatedBody= this.note_body.value.trim();
 
                 this.onNoteEdit(updatedTitle,updatedBody);
             })
@@ -47,7 +50,7 @@ export default class NotesView {
         
 
 
-        inputBody.addEventListener('keydown', e => {
+        this.note_body.addEventListener('keydown', e => {
             if ( e.key === 'Tab' && !e.shiftKey ) {
                 document.execCommand('insertText', false, "\t");
                 e.preventDefault();
@@ -79,29 +82,33 @@ export default class NotesView {
     }
 
     updateNotesList(notes){
-        const notesListContainer = this.root.querySelector(".note_list");
+        
 
-        notesListContainer.innerHTML=" ";
+        this.notesListContainer.innerHTML=" ";
         
         for(const note of notes){
             const html =this.createListItemHTML(note.id, note.title,note.body, new Date(note.updated),new Date(note.creation));
 
-            notesListContainer.insertAdjacentHTML("beforeend", html);
+            this.notesListContainer.insertAdjacentHTML("beforeend", html);
         }
 
-        notesListContainer.querySelectorAll(".note_item").forEach(notesListItem=>{
-            notesListItem.addEventListener("click",() =>{
-                this.onNoteSelect(notesListItem.dataset.noteId)
+        
+
+        this.notesListContainer.addEventListener("click",(event) =>{
+            let ListItem =event.target.closest(".note_item"); 
+            if(ListItem){
+                this.onNoteSelect(ListItem.dataset.noteId);
+            }   
+            
 
             });
 
-        })
 
     }
 
     updateActiveNote(note){
-        this.root.querySelector(".note_title").value=note.title;
-        this.root.querySelector(".note_body").value=note.body;
+        this.note_title.value=note.title;
+        this.note_body.value=note.body;
 
         this.root.querySelectorAll(".note_item").forEach(notesListItem =>{
             notesListItem.classList.remove("note_item--selected");
@@ -110,6 +117,6 @@ export default class NotesView {
     }
 
     NotePreview(visible){
-        this.root.querySelector(".notes_preview").style.visibility=visible? "visible" : "hidden";
+        this.preview.style.visibility=visible? "visible" : "hidden";
     }
 }
